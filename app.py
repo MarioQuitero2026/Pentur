@@ -16,36 +16,40 @@ st.set_page_config(page_title="PENTUR 2036 · Marco lógico", layout="wide",
                    initial_sidebar_state="expanded")
 
 # ----------------------------- estilos ----------------------------- #
-st.markdown("""
+st.markdown(f"""
 <style>
-  .block-container {padding-top: 0.8rem; max-width: 100%;}
-  h1, h2, h3 {font-family: 'Segoe UI', Arial, sans-serif;}
+  /* Tipografía corporativa IDOM: Arial */
+  html, body, [class*="css"], .stMarkdown, button, input, textarea, select {{
+      font-family: Arial, Helvetica, sans-serif !important;}}
+  .block-container {{padding-top: 2.6rem; max-width: 100%;}}
+  .block-container h2:first-of-type {{margin-top: .2rem; line-height: 1.3;
+      color: {cfg.IDOM_AZUL};}}
   /* sidebar (panel de control) un poco más ancho ~ 22% */
-  section[data-testid="stSidebar"] {width: 340px !important;}
+  section[data-testid="stSidebar"] {{width: 340px !important;}}
   /* barra de estado fija arriba del panel principal */
-  .status-bar {position: sticky; top: 0; z-index: 999;
-      background: #ffffff; border-bottom: 2px solid #e6e9ef;
+  .status-bar {{position: sticky; top: 0; z-index: 999;
+      background: #ffffff; border-bottom: 2px solid {cfg.IDOM_AZUL};
       padding: 8px 4px 10px; margin: -4px 0 8px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
-  .status-bar .pill {color:#fff; padding:5px 14px; border-radius:20px;
-      font-size:.85rem; font-weight:600; white-space:nowrap;}
-  .status-bar .pill-h {background:#1b2a4a;}
-  .status-bar .pill-s {background:#C8102E;}
-  .status-bar .dti {color:#3c4a5c; font-size:.76rem; opacity:.9;}
-  .vision-band {background: linear-gradient(90deg,#0b0f19,#1b2a4a);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}}
+  .status-bar .pill {{padding:5px 14px; border-radius:20px;
+      font-size:.85rem; font-weight:700; white-space:nowrap;}}
+  .status-bar .pill-h {{background:{cfg.IDOM_AZUL}; color:#fff;}}
+  .status-bar .pill-s {{background:{cfg.IDOM_AZUL_CLARO}; color:{cfg.IDOM_AZUL};}}
+  .status-bar .dti {{color:{cfg.IDOM_GRIS_MEDIO}; font-size:.76rem;}}
+  .vision-band {{background: linear-gradient(90deg,#0A0570,{cfg.IDOM_AZUL});
       color:#fff; padding:14px 20px; border-radius:10px; text-align:center;
-      font-size:0.95rem; line-height:1.4; margin-bottom:6px;}
-  .dti-band {background:#eef1f5; border:1px dashed #9aa7b8; color:#3c4a5c;
-      padding:8px 14px; border-radius:8px; text-align:center;
-      font-size:0.78rem; margin-top:6px;}
-  .transv {display:inline-block; background:#fff3cd; color:#7a5b00;
-      border:1px solid #ffe08a; border-radius:20px; padding:2px 12px;
-      font-size:0.75rem; margin:0 4px;}
+      font-size:0.95rem; line-height:1.4; margin-bottom:6px;}}
+  .dti-band {{background:{cfg.IDOM_GRIS_CLARO}; border:1px solid #d7d7d2;
+      color:{cfg.IDOM_AZUL}; padding:8px 14px; border-radius:8px;
+      text-align:center; font-size:0.78rem; margin-top:6px;}}
+  .transv {{display:inline-block; background:{cfg.IDOM_GRIS_CLARO};
+      color:{cfg.IDOM_AZUL}; border:1px solid #d7d7d2; border-radius:20px;
+      padding:2px 12px; font-size:0.75rem; margin:0 4px; font-weight:700;}}
   /* botones-caja del mapa */
-  div[data-testid="stButton"] > button {
+  div[data-testid="stButton"] > button {{
       width:100%; min-height:74px; white-space:normal; line-height:1.15;
       border-radius:10px; border:1px solid rgba(0,0,0,.12);
-      font-size:0.80rem; font-weight:600; padding:8px 6px;}
+      font-size:0.80rem; font-weight:600; padding:8px 6px;}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -124,12 +128,31 @@ def figura_cubo(sel_h, sel_s):
 
 
 # ------------------------------ header ----------------------------- #
-st.markdown("## 🇵🇪 PENTUR 2036 — Marco lógico tridimensional")
-st.caption("Plan Estratégico Nacional de Turismo del Perú · Producto 3 · "
-           "IDOM / BID — herramienta de consulta interactiva")
+LOGO = "idom_logo.png"
+if os.path.exists(LOGO):
+    try:
+        st.logo(LOGO, size="large")        # ranura de marca (arriba a la izq.)
+    except TypeError:
+        try:
+            st.logo(LOGO)                  # versiones sin parámetro 'size'
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+h_logo, h_txt = st.columns([1, 6], gap="medium", vertical_alignment="center")
+with h_logo:
+    if os.path.exists(LOGO):
+        st.image(LOGO, width=150)
+with h_txt:
+    st.markdown("## PENTUR 2036 — Marco lógico tridimensional")
+    st.caption("Plan Estratégico Nacional de Turismo del Perú · Producto 3 · "
+               "IDOM / BID — herramienta de consulta interactiva")
 
 # ---------------- panel de control (sidebar, fijo) ----------------- #
 with st.sidebar:
+    if os.path.exists(LOGO):
+        st.image(LOGO, width=160)
     st.markdown("### 1 · Filtra el marco")
     sel_horizonte = st.radio("Horizonte de desarrollo", cfg.HORIZONTES, index=0)
     sel_segmento = st.radio("Segmentación territorial", cfg.SEGMENTOS, index=0)

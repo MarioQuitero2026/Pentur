@@ -1,0 +1,7 @@
+[theme]
+# Paleta de marca IDOM (guía de identidad visual)
+primaryColor = "#10069F"            # Azul IDOM
+backgroundColor = "#FFFFFF"         # blanco predominante
+secondaryBackgroundColor = "#EFEFED" # Gris claro IDOM (sidebar / tablas)
+textColor = "#000000"               # cuerpo de texto en negro
+font = "sans serif"
