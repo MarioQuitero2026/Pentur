@@ -27,12 +27,15 @@ PILARES = ["Oferta", "Promoción y demanda", "Infraestructura", "Gobernanza"]
 # --- Estructura del mapa estratégico (Ilustración 11) -------------- #
 # De arriba (visión) hacia abajo (capacidades). Cada perspectiva lista
 # sus niveles/pilares en el orden en que se muestran.
+# NOTA: el mapa usa una rampa de AZULES (una sola familia = "un solo marco"),
+# deliberadamente distinta de la paleta categórica del cubo (rojo/naranja/
+# teal/púrpura de PILAR_COLOR), para que el usuario no confunda ambas vistas.
 PERSPECTIVAS = [
     {
         "id": "Generación de valor e innovación",
         "titulo": "Generación de valor e innovación",
         "subtitulo": "Resultados de impacto a escala nacional",
-        "color": "#6A1B9A",
+        "color": "#0D2B45",   # navy más oscuro (cima)
         "niveles": ["Competitividad turística", "Arribos y viajes",
                     "Inversión pública", "Aporte al PIB"],
     },
@@ -40,21 +43,21 @@ PERSPECTIVAS = [
         "id": "Gestión de visitantes",
         "titulo": "Gestión de visitantes",
         "subtitulo": "Propuesta de valor: calidad, seguridad, inclusión y sostenibilidad",
-        "color": "#00838F",
+        "color": "#1D4E74",
         "niveles": ["Calidad", "Seguridad", "Inclusión", "Sostenibilidad"],
     },
     {
         "id": "Gestión territorial",
         "titulo": "Gestión territorial",
         "subtitulo": "Cuatro pilares de intervención en el destino",
-        "color": "#C8102E",
+        "color": "#2E6DA4",
         "niveles": ["Oferta", "Promoción y demanda", "Infraestructura", "Gobernanza"],
     },
     {
         "id": "Desarrollo de capacidades y condiciones",
         "titulo": "Desarrollo de capacidades y condiciones",
         "subtitulo": "Base habilitante del sistema",
-        "color": "#455A64",
+        "color": "#5A7C99",   # azul acero más claro (base)
         "niveles": ["Sistema de inteligencia turística", "Marco normativo sectorial"],
     },
 ]

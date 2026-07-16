@@ -71,19 +71,34 @@ def _cubo(x, y, z, color, opacity):
     return go.Mesh3d(x=X, y=Y, z=Z, i=i, j=j, k=k, color=color,
                      opacity=opacity, flatshading=True, hoverinfo="skip")
 
+def _aristas(x, y, z, color="#0b0f19", width=3):
+    """Aristas de un cubo unitario en (x,y,z) para resaltar la porción activa."""
+    e = [(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,0),
+         (0,0,1),(1,0,1),(1,1,1),(0,1,1),(0,0,1),
+         (None,None,None),(1,0,0),(1,0,1),
+         (None,None,None),(1,1,0),(1,1,1),
+         (None,None,None),(0,1,0),(0,1,1)]
+    xs = [x+dx if dx is not None else None for dx, _, _ in e]
+    ys = [y+dy if dy is not None else None for _, dy, _ in e]
+    zs = [z+dz if dz is not None else None for _, _, dz in e]
+    return go.Scatter3d(x=xs, y=ys, z=zs, mode="lines",
+                        line=dict(color=color, width=width), hoverinfo="skip")
+
 def figura_cubo(sel_h, sel_s):
     """Cubo Horizontes(x) × Segmentos(y) × Pilares(z); resalta la columna
-    (horizonte, segmento) seleccionada a lo largo de los 4 pilares."""
+    (horizonte, segmento) seleccionada a lo largo de los 4 pilares.
+    Todas las celdas usan el color de su pilar; las NO activas van
+    translúcidas para diferenciarlas de las activas (opacas)."""
     fig = go.Figure()
     for hx, h in enumerate(cfg.HORIZONTES_CORTO):
         for sy, s in enumerate(cfg.SEGMENTOS):
             activo = (hx == sel_h and sy == sel_s)
             for pz, pil in enumerate(cfg.PILARES):
-                if activo:
-                    color, op = cfg.PILAR_COLOR[pil], 0.96
-                else:
-                    color, op = "#c9d2dc", 0.10
+                color = cfg.PILAR_COLOR[pil]          # mismo color siempre
+                op = 0.97 if activo else 0.12          # transparencia diferencia
                 fig.add_trace(_cubo(hx*1.15, sy*1.15, pz*1.15, color, op))
+                if activo:
+                    fig.add_trace(_aristas(hx*1.15, sy*1.15, pz*1.15))
     # etiquetas de ejes
     fig.update_layout(
         scene=dict(
@@ -157,22 +172,29 @@ def n_lineas(persp_id, nivel):
                     (df_h["nivel_pilar"] == nivel)])
 
 for persp in cfg.PERSPECTIVAS:
-    lab_col, *box_cols = st.columns([1.5] + [1] * len(persp["niveles"]), gap="small")
-    with lab_col:
+    with st.container(border=True):
+        # banda-encabezado que agrupa: deja claro a qué perspectiva
+        # pertenece cada nivel/pilar de abajo (p. ej. Competitividad
+        # turística ∈ Generación de valor e innovación)
         st.markdown(
-            f"<div class='persp-label' style='background:{persp['color']}'>"
-            f"{persp['titulo']}<span class='persp-sub'>{persp['subtitulo']}</span>"
-            f"</div>", unsafe_allow_html=True)
-    for col, nivel in zip(box_cols, persp["niveles"]):
-        with col:
-            n = n_lineas(persp["id"], nivel)
-            etiqueta = f"{nivel}\n({n} línea{'s' if n != 1 else ''})"
-            activo = (st.session_state.nivel_sel == (persp["id"], nivel))
-            if st.button(etiqueta, key=f"{persp['id']}|{nivel}",
-                         type="primary" if activo else "secondary",
-                         disabled=(n == 0)):
-                st.session_state.nivel_sel = (persp["id"], nivel)
-                st.rerun()
+            f"<div style='background:{persp['color']};color:#fff;"
+            f"padding:7px 14px;border-radius:7px;margin-bottom:10px;"
+            f"display:flex;justify-content:space-between;align-items:center'>"
+            f"<span style='font-weight:700;font-size:0.9rem'>{persp['titulo']}</span>"
+            f"<span style='font-weight:400;font-size:0.72rem;opacity:.9'>"
+            f"{persp['subtitulo']}</span></div>", unsafe_allow_html=True)
+        box_cols = st.columns(len(persp["niveles"]), gap="small")
+        for col, nivel in zip(box_cols, persp["niveles"]):
+            with col:
+                n = n_lineas(persp["id"], nivel)
+                etiqueta = f"{nivel}\n({n} línea{'s' if n != 1 else ''})"
+                activo = (st.session_state.nivel_sel == (persp["id"], nivel))
+                if st.button(etiqueta, key=f"{persp['id']}|{nivel}",
+                             type="primary" if activo else "secondary",
+                             disabled=(n == 0),
+                             use_container_width=True):
+                    st.session_state.nivel_sel = (persp["id"], nivel)
+                    st.rerun()
 
 st.markdown(
     "<div style='text-align:center;color:#8a97a8;font-size:.72rem;margin-top:8px'>"
