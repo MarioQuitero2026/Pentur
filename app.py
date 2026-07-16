@@ -13,20 +13,28 @@ import config_mapa as cfg
 DATA_FILE = "datos_pentur.xlsx"
 
 st.set_page_config(page_title="PENTUR 2036 · Marco lógico", layout="wide",
-                   initial_sidebar_state="collapsed")
+                   initial_sidebar_state="expanded")
 
 # ----------------------------- estilos ----------------------------- #
 st.markdown("""
 <style>
-  .block-container {padding-top: 1.4rem; max-width: 1500px;}
+  .block-container {padding-top: 0.8rem; max-width: 100%;}
   h1, h2, h3 {font-family: 'Segoe UI', Arial, sans-serif;}
+  /* sidebar (panel de control) un poco más ancho ~ 22% */
+  section[data-testid="stSidebar"] {width: 340px !important;}
+  /* barra de estado fija arriba del panel principal */
+  .status-bar {position: sticky; top: 0; z-index: 999;
+      background: #ffffff; border-bottom: 2px solid #e6e9ef;
+      padding: 8px 4px 10px; margin: -4px 0 8px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+  .status-bar .pill {color:#fff; padding:5px 14px; border-radius:20px;
+      font-size:.85rem; font-weight:600; white-space:nowrap;}
+  .status-bar .pill-h {background:#1b2a4a;}
+  .status-bar .pill-s {background:#C8102E;}
+  .status-bar .dti {color:#3c4a5c; font-size:.76rem; opacity:.9;}
   .vision-band {background: linear-gradient(90deg,#0b0f19,#1b2a4a);
       color:#fff; padding:14px 20px; border-radius:10px; text-align:center;
       font-size:0.95rem; line-height:1.4; margin-bottom:6px;}
-  .persp-label {font-weight:700; font-size:0.82rem; color:#fff;
-      padding:6px 10px; border-radius:8px; height:100%; display:flex;
-      flex-direction:column; justify-content:center;}
-  .persp-sub {font-weight:400; font-size:0.68rem; opacity:.9; margin-top:2px;}
   .dti-band {background:#eef1f5; border:1px dashed #9aa7b8; color:#3c4a5c;
       padding:8px 14px; border-radius:8px; text-align:center;
       font-size:0.78rem; margin-top:6px;}
@@ -38,7 +46,6 @@ st.markdown("""
       width:100%; min-height:74px; white-space:normal; line-height:1.15;
       border-radius:10px; border:1px solid rgba(0,0,0,.12);
       font-size:0.80rem; font-weight:600; padding:8px 6px;}
-  .meta-pill {font-weight:700;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -111,7 +118,7 @@ def figura_cubo(sel_h, sel_s):
             camera=dict(eye=dict(x=1.7, y=1.7, z=1.1)),
             aspectmode="cube",
         ),
-        margin=dict(l=0, r=0, t=0, b=0), height=430, showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0), height=340, showlegend=False,
     )
     return fig
 
@@ -121,40 +128,24 @@ st.markdown("## 🇵🇪 PENTUR 2036 — Marco lógico tridimensional")
 st.caption("Plan Estratégico Nacional de Turismo del Perú · Producto 3 · "
            "IDOM / BID — herramienta de consulta interactiva")
 
-# ------------------------- controles del cubo ---------------------- #
-c_izq, c_der = st.columns([1.05, 1.35], gap="large")
-
-with c_izq:
-    st.markdown("#### 1 · Filtra el marco")
+# ---------------- panel de control (sidebar, fijo) ----------------- #
+with st.sidebar:
+    st.markdown("### 1 · Filtra el marco")
     sel_horizonte = st.radio("Horizonte de desarrollo", cfg.HORIZONTES, index=0)
-    sel_segmento = st.radio("Segmentación territorial", cfg.SEGMENTOS,
-                            index=0, horizontal=True)
+    sel_segmento = st.radio("Segmentación territorial", cfg.SEGMENTOS, index=0)
     h_idx = cfg.HORIZONTES.index(sel_horizonte)
     s_idx = cfg.SEGMENTOS.index(sel_segmento)
     st.plotly_chart(figura_cubo(h_idx, s_idx), use_container_width=True,
                     config={"displayModeBar": False})
 
-with c_der:
-    st.markdown("#### Selección activa")
-    st.markdown(
-        f"<div style='display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px'>"
-        f"<span style='background:#1b2a4a;color:#fff;padding:6px 14px;"
-        f"border-radius:20px;font-size:.85rem'>🕓 {sel_horizonte}</span>"
-        f"<span style='background:#C8102E;color:#fff;padding:6px 14px;"
-        f"border-radius:20px;font-size:.85rem'>📍 {sel_segmento}</span></div>",
-        unsafe_allow_html=True)
-    st.markdown(f"<div class='dti-band'>{cfg.ENFOQUE_DTI}</div>",
-                unsafe_allow_html=True)
-    transv = " ".join(f"<span class='transv'>{t}</span>"
-                      for t in cfg.EJES_TRANSVERSALES)
-    st.markdown(f"<div style='margin-top:10px;font-size:.8rem'>"
-                f"<b>Ejes transversales:</b> {transv}</div>",
-                unsafe_allow_html=True)
-    st.info("Haz clic en cualquier **nivel / pilar** del mapa de abajo para ver "
-            "las líneas de acción, indicadores y metas de este horizonte y "
-            "segmento.", icon="👇")
-
-st.divider()
+# ------------- barra de estado transversal (fija arriba) ----------- #
+st.markdown(
+    f"<div class='status-bar'>"
+    f"<span class='pill pill-h'>🕓 {sel_horizonte}</span>"
+    f"<span class='pill pill-s'>📍 {sel_segmento}</span>"
+    f"<span class='dti'>Enfoque transversal <b>DTI</b> · Ejes: "
+    f"{' · '.join(cfg.EJES_TRANSVERSALES)}</span>"
+    f"</div>", unsafe_allow_html=True)
 
 # --------------------------- mapa estratégico ---------------------- #
 st.markdown("#### 2 · Mapa estratégico general")
@@ -164,12 +155,22 @@ df_h = df[df["horizonte"] == sel_horizonte]
 if "nivel_sel" not in st.session_state:
     st.session_state.nivel_sel = None
 
-st.markdown(f"<div class='vision-band'>🎯 <b>Visión 2036</b> — {cfg.VISION}</div>",
-            unsafe_allow_html=True)
-
 def n_lineas(persp_id, nivel):
     return len(df_h[(df_h["perspectiva"] == persp_id) &
                     (df_h["nivel_pilar"] == nivel)])
+
+# ayuda + ejes transversales (movidos aquí desde la columna derecha)
+transv = " ".join(f"<span class='transv'>{t}</span>" for t in cfg.EJES_TRANSVERSALES)
+st.markdown(
+    f"<div style='display:flex;justify-content:space-between;align-items:center;"
+    f"flex-wrap:wrap;gap:8px;margin-bottom:8px'>"
+    f"<span style='font-size:.82rem;color:#3c4a5c'>👇 Haz clic en un "
+    f"<b>nivel / pilar</b> para ver sus líneas de acción, indicadores y metas.</span>"
+    f"<span style='font-size:.8rem'><b>Ejes transversales:</b> {transv}</span></div>",
+    unsafe_allow_html=True)
+
+st.markdown(f"<div class='vision-band'>🎯 <b>Visión 2036</b> — {cfg.VISION}</div>",
+            unsafe_allow_html=True)
 
 for persp in cfg.PERSPECTIVAS:
     with st.container(border=True):
@@ -248,6 +249,7 @@ else:
 
 # ----------------------------- footer ------------------------------ #
 with st.sidebar:
+    st.divider()
     st.markdown("### Datos")
     st.write(f"Filas cargadas: **{len(df)}**")
     st.write(f"Fuente: `{DATA_FILE}`")
