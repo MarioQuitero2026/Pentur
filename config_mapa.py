@@ -61,8 +61,8 @@ PERSPECTIVAS = [
         "titulo": "Generación de valor e innovación",
         "subtitulo": "Resultados de impacto a escala nacional",
         "color": IDOM_RAMP[0],   # Azul IDOM (cima, mayor jerarquía)
-        "niveles": ["Competitividad turística", "Arribos y viajes",
-                    "Inversión pública", "Aporte al PIB"],
+        "niveles": ["Oferta", "Demanda", "Infraestructura", "Gobernanza",
+                    "Transversal"],
     },
     {
         "id": "Gestión de visitantes",
@@ -83,7 +83,8 @@ PERSPECTIVAS = [
         "titulo": "Desarrollo de capacidades y condiciones",
         "subtitulo": "Base habilitante del sistema",
         "color": IDOM_RAMP[3],   # Azul claro IDOM (base)
-        "niveles": ["Sistema de inteligencia turística", "Marco normativo sectorial"],
+        "niveles": ["Sistema de inteligencia turística", "Marco normativo sectorial",
+                    "Fortalecimiento del capital humano"],
     },
 ]
 

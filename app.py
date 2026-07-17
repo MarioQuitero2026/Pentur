@@ -3,6 +3,7 @@ Dashboard estratégico PENTUR 2036
 Ejecutar:  streamlit run app.py
 """
 import os
+import base64
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -11,6 +12,16 @@ import plotly.graph_objects as go
 import config_mapa as cfg
 
 DATA_FILE = "datos_pentur.xlsx"
+
+
+def _b64(path):
+    try:
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except Exception:
+        return ""
+
+_logo_b64 = _b64("idom_logo.png")
 
 st.set_page_config(page_title="PENTUR 2036 · Marco lógico", layout="wide",
                    initial_sidebar_state="expanded")
@@ -61,6 +72,11 @@ def cargar_datos(path, mtime):
     df.columns = [c.strip() for c in df.columns]
     for c in df.columns:
         df[c] = df[c].astype(str).str.strip()
+    # Normaliza el sufijo "(GV)" en Generación de valor: algunos horizontes lo
+    # traen ("Oferta (GV)") y otros no ("Oferta"). Se unifica sin sufijo para
+    # que cada nivel coincida en los 3 horizontes.
+    df["nivel_pilar"] = df["nivel_pilar"].str.replace(r"\s*\(GV\)$", "",
+                                                      regex=True).str.strip()
     return df
 
 if not os.path.exists(DATA_FILE):
@@ -129,21 +145,17 @@ def figura_cubo(sel_h, sel_s):
 
 # ------------------------------ header ----------------------------- #
 LOGO = "idom_logo.png"
-if os.path.exists(LOGO):
-    try:
-        st.logo(LOGO, size="large")        # ranura de marca (arriba a la izq.)
-    except TypeError:
-        try:
-            st.logo(LOGO)                  # versiones sin parámetro 'size'
-        except Exception:
-            pass
-    except Exception:
-        pass
-
 h_logo, h_txt = st.columns([1, 6], gap="medium", vertical_alignment="center")
 with h_logo:
     if os.path.exists(LOGO):
-        st.image(LOGO, width=150)
+        # contenedor cuadrado, blanco, con margen de protección: el logo se ve
+        # completo (sin recorte) y respeta el área de seguridad de la guía IDOM
+        st.markdown(
+            f"<div style='background:#fff;border-radius:6px;padding:14px 12px;"
+            f"display:flex;align-items:center;justify-content:center;'>"
+            f"<img src='data:image/png;base64,{_logo_b64}' "
+            f"style='width:100%;max-width:150px;height:auto;display:block;'/></div>",
+            unsafe_allow_html=True)
 with h_txt:
     st.markdown("## PENTUR 2036 — Marco lógico tridimensional")
     st.caption("Plan Estratégico Nacional de Turismo del Perú · Producto 3 · "
@@ -151,8 +163,6 @@ with h_txt:
 
 # ---------------- panel de control (sidebar, fijo) ----------------- #
 with st.sidebar:
-    if os.path.exists(LOGO):
-        st.image(LOGO, width=160)
     st.markdown("### 1 · Filtra el marco")
     sel_horizonte = st.radio("Horizonte de desarrollo", cfg.HORIZONTES, index=0)
     sel_segmento = st.radio("Segmentación territorial", cfg.SEGMENTOS, index=0)
